@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Component Playground
 
-## Getting Started
+A personal lab for UI components, effects and page sections.
+Next.js (App Router) · Tailwind v4 · Motion.
 
-First, run the development server:
+> Full explanation of every folder: [`docs/project-structure.md`](docs/project-structure.md)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Structure
+
+```
+app/
+  page.tsx                 gallery of all experiments
+  playground/
+    layout.tsx             sidebar + stage
+    [slug]/page.tsx        renders one experiment on the canvas
+    _components/           canvas, sidebar (playground-only UI)
+experiments/
+  <category>/<slug>/       one folder per experiment
+    component.tsx          the reusable component (no playground code)
+    demo.tsx               how it's shown on the canvas
+    meta.ts                title, category, tags, layout, lazy loader
+    README.md              inspiration + notes
+  _template/               copy this to start a new one
+registry/                  list of experiments + categories
+components/                (create when needed) shared building blocks
+hooks/                     (create when needed) shared hooks
+lib/                       small utilities (cn, ...)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Adding an experiment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. `cp -r experiments/_template experiments/<category>/<slug>`
+2. Edit `meta.ts` (unique `slug`, `category`, `layout`: `card` for small
+   components, `full` for page sections / pages).
+3. Register `meta` in `registry/index.ts`.
+4. Open `/playground/<slug>`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+New category? Add it to `CATEGORIES` in `registry/types.ts`.
 
-## Learn More
+## Rules of thumb
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Experiments don't import from each other. Shared code moves up to
+  `components/`, `hooks/` or `lib/`.
+- Use `dark:` variants – the canvas toggles a `.dark` class on the stage.
+- Anything using state, effects or `motion` needs `"use client"`.

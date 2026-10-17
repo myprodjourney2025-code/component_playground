@@ -1,0 +1,42 @@
+import type { ComponentType } from "react";
+
+/**
+ * Add a new category here (and in CATEGORIES below) when you start
+ * experimenting with something that doesn't fit an existing bucket.
+ * The folder under `experiments/` should match the category id.
+ */
+export const CATEGORIES = {
+  loaders: "Loaders",
+  buttons: "Buttons",
+  inputs: "Inputs & forms",
+  cards: "Cards",
+  navigation: "Navigation",
+  feedback: "Feedback & overlays",
+  effects: "Effects & backgrounds",
+  sections: "Page sections",
+  pages: "Full pages",
+} as const;
+
+export type Category = keyof typeof CATEGORIES;
+
+/**
+ * "card"  – demo is centred inside a fixed-size card (small components)
+ * "full"  – demo fills the whole stage (page sections, full pages)
+ */
+export type StageLayout = "card" | "full";
+
+export type Experiment = {
+  /** URL slug, unique across ALL categories → /playground/<slug> */
+  slug: string;
+  title: string;
+  category: Category;
+  description?: string;
+  tags?: string[];
+  /** Link or note about where the idea came from */
+  inspiration?: string;
+  /** ISO date, e.g. "2026-10-17" – used for sorting "newest first" */
+  createdAt: string;
+  layout?: StageLayout;
+  /** Lazy import of the demo so only the open experiment is bundled */
+  load: () => Promise<{ default: ComponentType }>;
+};

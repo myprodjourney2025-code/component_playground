@@ -5,6 +5,7 @@ import { SITE, absoluteUrl } from "@/lib/site";
 import { CATEGORIES, galleryComponents } from "@/registry";
 import { JsonLd } from "../_components/json-ld";
 import { ShareLinks } from "./_components/share-links";
+import { CardPreviewSkeleton } from "./_components/skeletons";
 
 export const metadata: Metadata = {
   title: "Free copy-paste React components with motion",
@@ -69,7 +70,7 @@ export default function ComponentsIndex() {
               href={`/components/${item.slug}`}
               className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-foreground/40"
             >
-              <Suspense fallback={<div className="h-72 border-b border-border" />}>
+              <Suspense fallback={<CardPreviewSkeleton />}>
                 <CardPreview load={item.gallery?.examples[0]?.load} />
               </Suspense>
               <div className="p-5">

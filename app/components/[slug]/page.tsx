@@ -8,6 +8,7 @@ import { JsonLd } from "../../_components/json-ld";
 import { CodeBlock } from "../_components/code-block";
 import { CopyButton } from "../_components/copy-button";
 import { ShareLinks } from "../_components/share-links";
+import { ComponentPageSkeleton } from "../_components/skeletons";
 import { VariantViewer, type Variant } from "../_components/variant-viewer";
 
 type Params = PageProps<"/components/[slug]">["params"];
@@ -41,7 +42,7 @@ export default function ComponentPage({
   params,
 }: PageProps<"/components/[slug]">) {
   return (
-    <Suspense fallback={<p className="text-muted">Loading…</p>}>
+    <Suspense fallback={<ComponentPageSkeleton />}>
       <ComponentDoc params={params} />
     </Suspense>
   );

@@ -17,6 +17,12 @@ export function SiteFooter() {
             Privacy
           </Link>
           <a
+            href={`mailto:${SITE.contactEmail}`}
+            className="hover:text-foreground"
+          >
+            Contact
+          </a>
+          <a
             href={SITE.repo}
             target="_blank"
             rel="noopener noreferrer"

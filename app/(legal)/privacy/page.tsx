@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -44,6 +45,21 @@ export default function PrivacyPage() {
       <p className="text-muted">
         Links to GitHub, X and LinkedIn leave this site. Their own privacy
         policies apply there.
+      </p>
+
+      <h2 className="text-xl font-semibold tracking-tight">
+        Contact and takedowns
+      </h2>
+      <p className="text-muted">
+        Questions, corrections, or a request to remove content (for example if
+        you believe something here infringes your rights): email{" "}
+        <a
+          href={`mailto:${SITE.contactEmail}`}
+          className="text-foreground underline underline-offset-4"
+        >
+          {SITE.contactEmail}
+        </a>
+        . Please include the page address and what you would like changed.
       </p>
 
       <p className="text-sm text-muted">

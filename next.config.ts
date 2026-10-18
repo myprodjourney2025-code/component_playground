@@ -13,11 +13,12 @@ const nextConfig: NextConfig = {
     "/llms-full.txt": ["./experiments/**/*.tsx"],
   },
   partialPrefetching: true,
-  // Legacy route, replaced by /components. Remove together with app/gallery.
+  // The playground is a dev-only workbench: send production visitors to the gallery.
   async redirects() {
+    if (process.env.NODE_ENV !== "production") return [];
     return [
-      { source: "/gallery", destination: "/components", permanent: false },
-      { source: "/gallery/:slug", destination: "/components/:slug", permanent: false },
+      { source: "/playground", destination: "/components", permanent: false },
+      { source: "/playground/:path*", destination: "/components", permanent: false },
     ];
   },
   turbopack: {

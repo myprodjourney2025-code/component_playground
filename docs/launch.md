@@ -40,7 +40,7 @@ Not legal advice. Check anything that matters to you with a qualified person.
   and code are your own, but do not publish the reference screenshots, and avoid copying
   logos, brand names or trademarks into components.
 - Dependencies keep their own licenses (React, Motion, Tailwind: MIT; Geist font: OFL).
-- A contact address (for takedown or questions) is good practice: add one to `/privacy`.
+- Contact for takedowns and questions: set in `lib/site.ts` (`contactEmail`), shown on `/privacy` and in the footer.
 - Domain, hosting and Search Console accounts: enable 2FA.
 
 ## Cleanup (needs a stopped dev server)

@@ -7,6 +7,8 @@ export const SITE = {
     "Free, copy-paste React components with motion: loaders, switches and more. Open the page, copy the code, ship it. Built with Next.js, Tailwind CSS and Motion.",
   repo: "https://github.com/myprodjourney2025-code/component_playground",
   author: { name: "Samiran Setua", url: "https://samiransetua.in" },
+  /** Public contact for questions and takedown requests. */
+  contactEmail: "samiransetua26@gmail.com",
   license: "MIT",
   licenseUrl: "https://opensource.org/license/mit",
   keywords: [

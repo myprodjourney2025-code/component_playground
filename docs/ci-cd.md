@@ -5,7 +5,7 @@
 | Branch | Purpose | Deploys to |
 | --- | --- | --- |
 | `dev` (and short feature branches off it) | Local development | Vercel preview URL, if pushed |
-| `main` | What is live | **Production** (components.samiransetua.in) |
+| `main` | What is live | **Production** (component.samiransetua.in) |
 
 ```
 dev ──PR──► main ──► Vercel deploys production
@@ -28,7 +28,7 @@ Repo > **Settings > Branches** (or Rulesets). Add a rule for **`main`**:
 - Require branches to be up to date before merging
 - Do not allow bypassing, so even admins go through a PR
 
-Then add the Actions variable `SITE_URL` = `https://components.samiransetua.in` (Settings > Secrets and variables > Actions > Variables)
+Then add the Actions variable `SITE_URL` = `https://component.samiransetua.in` (Settings > Secrets and variables > Actions > Variables)
 once the domain is mapped. Until then the smoke test uses Vercel's deployment URL.
 
 ## Day-to-day flow

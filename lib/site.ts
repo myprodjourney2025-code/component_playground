@@ -2,7 +2,7 @@
 export const SITE = {
   name: "Samiran Setua · Components",
   shortName: "Components",
-  url: "https://components.samiransetua.in",
+  url: "https://component.samiransetua.in",
   description:
     "Free, copy-paste React components with motion: loaders, switches and more. Open the page, copy the code, ship it. Built with Next.js, Tailwind CSS and Motion.",
   repo: "https://github.com/myprodjourney2025-code/component_playground",

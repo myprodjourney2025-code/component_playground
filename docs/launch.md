@@ -10,14 +10,14 @@ Not legal advice. Check anything that matters to you with a qualified person.
 
 ## 2. Deploy (done) and map the domain
 The site is **already deployed on Vercel**. Only the domain mapping is left:
-1. Vercel > Project > **Settings > Domains** > add `components.samiransetua.in`.
+1. Vercel > Project > **Settings > Domains** > add `component.samiransetua.in`.
 2. At the DNS provider for `samiransetua.in`, add the record Vercel shows
    (usually `CNAME components -> cname.vercel-dns.com`).
 3. Wait for HTTPS, then open the site over `https://`.
-4. In GitHub, add the Actions variable `SITE_URL=https://components.samiransetua.in` (see `docs/ci-cd.md`).
+4. In GitHub, add the Actions variable `SITE_URL=https://component.samiransetua.in` (see `docs/ci-cd.md`).
 
 ## 3. Search engines
-- Add the domain in Google Search Console (a "Domain" property verifies with one DNS TXT record), then submit `https://components.samiransetua.in/sitemap.xml`.
+- Add the domain in Google Search Console (a "Domain" property verifies with one DNS TXT record), then submit `https://component.samiransetua.in/sitemap.xml`.
 - Do the same in Bing Webmaster Tools (can import from Search Console).
 - Test structured data: https://search.google.com/test/rich-results and https://validator.schema.org/
 

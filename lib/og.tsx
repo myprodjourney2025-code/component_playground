@@ -85,7 +85,7 @@ export function ogImage({
         </div>
 
         <div style={{ display: "flex", fontSize: 28, color: "#a1a1aa" }}>
-          components.samiransetua.in · Free · MIT · Copy &amp; paste
+          component.samiransetua.in · Free · MIT · Copy &amp; paste
         </div>
       </div>
     ),

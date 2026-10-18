@@ -4,54 +4,47 @@
 
 | Branch | Purpose | Deploys to |
 | --- | --- | --- |
-| `dev` (and short feature branches) | Local development | Vercel preview URL (if pushed) |
-| `main` | Integration: tested work waiting for release | Vercel preview URL |
-| `prod` | What is live | **Production** (components.samiransetua.in) |
+| `dev` (and short feature branches off it) | Local development | Vercel preview URL, if pushed |
+| `main` | What is live | **Production** (components.samiransetua.in) |
 
 ```
-dev ──PR──► main ──PR──► prod ──► Vercel deploys production
-      CI runs        CI runs         └─► "Post-deploy smoke test" checks the live site
+dev ──PR──► main ──► Vercel deploys production
+      CI runs        └─► "Post-deploy smoke test" checks the live site
 ```
 
-CI (`Quality` + `E2E`) runs on every pull request and on pushes to `main` and `prod`.
-Production only changes when `prod` changes, and `prod` only accepts pull requests that passed CI.
+CI (`Quality` + `E2E`) runs on every pull request and on pushes to `main`.
+Production only changes when `main` changes, and `main` only accepts pull requests that passed CI.
 
 ## One-time setup
 
 ### Vercel
-Project > **Settings > Git > Production Branch**: set it to `prod`.
-All other branches then get preview deployments instead of production.
+Project > **Settings > Git > Production Branch** should be `main` (the default).
+Every other branch, such as `dev`, gets a preview deployment, not production.
 
-### GitHub (after the first CI run, so the check names exist)
-Repo > **Settings > Branches** (or Rulesets). Add a rule for **`prod`**, and the same for **`main`**:
+### GitHub (after the first CI run on a pull request, so the check names exist)
+Repo > **Settings > Branches** (or Rulesets). Add a rule for **`main`**:
 - Require a pull request before merging
 - Require status checks to pass: **Quality** and **E2E**
 - Require branches to be up to date before merging
-- (`prod` only) Restrict who can push, so nothing bypasses the gate
+- Do not allow bypassing, so even admins go through a PR
 
 Then add the Actions variable `SITE_URL` = `https://components.samiransetua.in` (Settings > Secrets and variables > Actions > Variables)
 once the domain is mapped. Until then the smoke test uses Vercel's deployment URL.
 
-### Creating the branches
-```bash
-git push origin main            # the last direct push to main
-git switch -c dev
-git push -u origin dev
-git push origin main:prod       # creates prod from main, once
-```
-
 ## Day-to-day flow
 
-1. Work on `dev` (or a feature branch off it). `npm run check` before every commit.
-2. Open a PR `dev` > `main`. CI runs. Merge when green.
-3. To release: open a PR `main` > `prod`. CI runs again on the exact code that will ship. Merge when green.
-4. Vercel deploys. The post-deploy smoke test checks the live site.
+1. Work on `dev`. Run `npm run check` before every commit; push `dev` whenever you like (you get a preview URL).
+2. To release, open a PR `dev` > `main` on GitHub. CI runs the full suite. Merge when green.
+3. Vercel deploys `main` to production. The post-deploy smoke test checks the live site.
+4. Back on `dev`, bring it up to date: `git switch dev && git pull origin main` (or `git merge origin/main`).
+
+Never commit straight to `main` once branch protection is on; the rule blocks it.
 
 ## The workflows
 
 | File | Trigger | Does |
 | --- | --- | --- |
-| `.github/workflows/ci.yml` | any PR, push to `main` or `prod` | Quality job and E2E job in parallel |
+| `.github/workflows/ci.yml` | any PR, push to `main` | Quality job and E2E job in parallel |
 | `.github/workflows/post-deploy.yml` | Vercel reports a successful **Production** deployment | Runs `tests/e2e/smoke.spec.ts` against the live site |
 | `.github/dependabot.yml` | Weekly / monthly | PRs for npm and Action updates (CI tests each one) |
 

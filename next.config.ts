@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  // Legacy route, replaced by /components. Remove together with app/gallery.
+  async redirects() {
+    return [
+      { source: "/gallery", destination: "/components", permanent: false },
+      { source: "/gallery/:slug", destination: "/components/:slug", permanent: false },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

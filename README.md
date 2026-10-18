@@ -1,7 +1,7 @@
 # Components
 
 Free, copy-paste React components with motion, by [Samiran Setua](https://samiransetua.in).
-Live at **https://components.samiransetua.in**. Open a component, preview its
+Live at **https://component.samiransetua.in**. Open a component, preview its
 variants, copy the code into your project. MIT licensed.
 
 Built with Next.js (App Router, Cache Components) · Tailwind CSS v4 · Motion.

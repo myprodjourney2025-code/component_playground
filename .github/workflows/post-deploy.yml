@@ -3,7 +3,7 @@ name: Post-deploy smoke test
 # Vercel reports each finished deployment to GitHub. After a production deploy
 # succeeds, check the live site. Set the repository variable SITE_URL
 # (Settings > Secrets and variables > Actions > Variables) to the public URL,
-# e.g. https://components.samiransetua.in. Without it, the deployment URL is used.
+# e.g. https://component.samiransetua.in. Without it, the deployment URL is used.
 on: deployment_status
 
 permissions:

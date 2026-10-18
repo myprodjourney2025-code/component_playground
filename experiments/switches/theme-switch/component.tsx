@@ -1,8 +1,14 @@
 "use client";
 
-import { useSyncExternalStore, type CSSProperties } from "react";
+import {
+  useSyncExternalStore,
+  type CSSProperties,
+  type MouseEvent,
+} from "react";
 
 const STORAGE_KEY = "theme";
+/** How long the circular theme reveal takes. */
+const REVEAL_MS = 700;
 
 // Runs before first paint. A saved choice wins; with none saved the page
 // follows the system, including live changes (e.g. sunset auto-dark).
@@ -71,12 +77,13 @@ export function ThemeSwitch({
   const isControlled = checked !== undefined;
   const isDark = isControlled ? checked : siteDark;
 
-  function toggle() {
+  function toggle(event: MouseEvent<HTMLButtonElement>) {
     if (isControlled) {
       onCheckedChange?.(!checked);
       return;
     }
-    const next = document.documentElement.classList.toggle("dark");
+    const root = document.documentElement;
+    const next = !root.classList.contains("dark");
     const system = window.matchMedia("(prefers-color-scheme: dark)").matches;
     try {
       // Picking what the system already has means "follow the system" again,
@@ -86,6 +93,48 @@ export function ThemeSwitch({
     } catch {
       // Storage can be blocked; the theme still switches for this visit.
     }
+
+    const apply = () => root.classList.toggle("dark", next);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || !document.startViewTransition) {
+      apply();
+      return;
+    }
+
+    // The new theme grows as a circle out of the switch.
+    const { left, top, width, height } = event.currentTarget.getBoundingClientRect();
+    const x = left + width / 2;
+    const y = top + height / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    );
+
+    // Turn off the browser's default cross-fade; we animate the reveal ourselves.
+    const style = document.createElement("style");
+    style.textContent =
+      "::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}";
+    document.head.append(style);
+
+    const transition = document.startViewTransition(apply);
+    transition.ready
+      .then(() =>
+        root.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: REVEAL_MS,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        ),
+      )
+      .catch(() => {});
+    transition.finished.finally(() => style.remove());
   }
 
   return (

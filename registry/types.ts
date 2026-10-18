@@ -25,6 +25,38 @@ export type Category = keyof typeof CATEGORIES;
  */
 export type StageLayout = "card" | "full";
 
+/** One variant tab in the gallery: a live preview plus its source. */
+export type GalleryExample = {
+  /** Tab label */
+  name: string;
+  /** Path inside the experiment folder, e.g. "examples/teal.tsx" */
+  file: string;
+  /** Lazy import of the same file, for the live preview */
+  load: () => Promise<{ default: ComponentType }>;
+};
+
+export type GalleryProp = {
+  name: string;
+  type: string;
+  default?: string;
+  description: string;
+};
+
+/**
+ * Opt-in: experiments with this field appear in /gallery as a
+ * copy-paste component (preview tabs, install, source, props).
+ */
+export type GalleryConfig = {
+  /** File name a developer saves the component as, e.g. "zigzag-trace.tsx" */
+  fileName: string;
+  /** Import path shown in usage code, e.g. "@/components/zigzag-trace" */
+  importPath: string;
+  /** npm packages to install, e.g. ["motion"] */
+  dependencies?: string[];
+  examples: GalleryExample[];
+  props?: GalleryProp[];
+};
+
 export type Experiment = {
   /** URL slug, unique across ALL categories → /playground/<slug> */
   slug: string;
@@ -37,6 +69,8 @@ export type Experiment = {
   /** ISO date, e.g. "2026-10-17" – used for sorting "newest first" */
   createdAt: string;
   layout?: StageLayout;
+  /** Set to publish this experiment in /gallery */
+  gallery?: GalleryConfig;
   /** Lazy import of the demo so only the open experiment is bundled */
   load: () => Promise<{ default: ComponentType }>;
 };

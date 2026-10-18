@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type CSSProperties } from "react";
 import {
   motion,
   useReducedMotion,
@@ -8,24 +8,60 @@ import {
   type Transition,
 } from "motion/react";
 
+export type ZigzagTraceColors = {
+  /** Flat 2D track the bolt is drawn over. */
+  track: string;
+  /** Bolt face gradient, top … */
+  boltLight: string;
+  /** … to bottom. */
+  boltDark: string;
+  /**
+   * Bolt side, a metallic gradient from top-left to bottom-right.
+   * Colours are spread evenly; alternate dark and bright for a polished look.
+   */
+  metal: string[];
+  /** Soft shadow the bolt casts on the track. */
+  shadow: string;
+  /** Thin highlight along the bolt's top-left edge. */
+  highlight: string;
+  /** Frame tint at the peak of the pulse. Include alpha, e.g. "rgb(131 56 235 / 0.12)". */
+  frame: string;
+};
+
+export const DEFAULT_COLORS: ZigzagTraceColors = {
+  track: "#dbe7ff",
+  boltLight: "#a46dff",
+  boltDark: "#7430dc",
+  metal: ["#2e1065", "#9a76e6", "#4c1d95", "#1e0a4a", "#7d55d4", "#3b1a7a"],
+  shadow: "#4c1d95",
+  highlight: "#ffffff",
+  frame: "rgb(131 56 235 / 0.12)",
+};
+
+export type ZigzagTraceProps = {
+  /** Bolt height in px. Width follows the shape's aspect ratio. Default 96. */
+  size?: number;
+  /** Override any of the colours; the rest keep their defaults. */
+  colors?: Partial<ZigzagTraceColors>;
+  /** Seconds for one draw → hold → erase cycle. Default 3.2. */
+  duration?: number;
+  /** Seconds of rest (empty track, clean frame) between cycles. Default 0.4. */
+  repeatDelay?: number;
+  /** Tint the frame in sync with the draw. Default true. */
+  pulse?: boolean;
+  /** Accessible name announced to screen readers. Default "Loading". */
+  label?: string;
+  /**
+   * Class for the frame. The frame fills its parent and copies its border
+   * radius, so size and round the parent, not the loader.
+   */
+  className?: string;
+};
+
 // Shape measured from the reference, drawn bottom → top.
 const PATH = "M14.9 92.1 L31.3 75.7 H7.7 L34.7 48.7 H8.7 L49.7 7.7";
+const VIEWBOX = { width: 58, height: 100 };
 const STROKE_WIDTH = 11.4;
-
-const TRACK = "#dbe7ff";
-const BOLT_LIGHT = "#a46dff";
-const BOLT_DARK = "#7430dc";
-const BOLT_DEPTH = "#4c1d95";
-
-// Metal side: dark purple with bright specular bands, like polished metal.
-const METAL_STOPS = [
-  { offset: 0, color: "#2e1065" },
-  { offset: 0.22, color: "#9a76e6" },
-  { offset: 0.4, color: "#4c1d95" },
-  { offset: 0.62, color: "#1e0a4a" },
-  { offset: 0.8, color: "#7d55d4" },
-  { offset: 1, color: "#3b1a7a" },
-];
 
 // Light comes from the top-left, so depth falls to the bottom-right.
 const DEPTH_OFFSET = "translate(2.2 3)";
@@ -39,16 +75,8 @@ const STROKE_PROPS = {
   strokeLinejoin: "round",
 } as const;
 
-// One clock for the whole loader: bolt layers and frame pulse share it.
 // times: fade-in → draw → hold → erase → fade-out
-const LOOP = {
-  duration: 3.2,
-  times: [0, 0.03, 0.43, 0.55, 0.96, 1],
-  ease: "easeInOut",
-  repeat: Infinity,
-  repeatType: "loop",
-  repeatDelay: 0.4,
-} satisfies Transition;
+const TIMES = [0, 0.03, 0.43, 0.55, 0.96, 1];
 
 // One animation shared by every bolt layer so the depth never drifts apart.
 const DRAW = {
@@ -58,7 +86,6 @@ const DRAW = {
     pathOffset: [0, 0, 0, 0, 0.95, 1],
     opacity: [0, 1, 1, 1, 1, 0],
   },
-  transition: LOOP,
 } satisfies MotionProps;
 
 // Reduced motion: show the finished bolt, no movement.
@@ -69,77 +96,121 @@ const DRAWN = {
 } satisfies MotionProps;
 
 // Frame pulse, synced to the draw: opacity only, never size.
-// white while the bolt fades in → purple wash grows as it draws, peaks on the
-// hold → fades as it erases → white again through the loop delay.
+// white while the bolt fades in → tint grows as it draws, peaks on the hold →
+// fades as it erases → white again through the loop delay.
 const PULSE = {
+  initial: { opacity: 0 },
   animate: { opacity: [0, 0, 1, 1, 0, 0] },
-  transition: LOOP,
 } satisfies MotionProps;
 
-export function ZigzagTrace() {
+const FRAME_STYLE: CSSProperties = {
+  position: "relative",
+  display: "grid",
+  placeItems: "center",
+  width: "100%",
+  height: "100%",
+  overflow: "hidden",
+  borderRadius: "inherit",
+};
+
+const FRAME_LAYER_STYLE: CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  borderRadius: "inherit",
+};
+
+export function ZigzagTrace({
+  size = 96,
+  colors,
+  duration = 3.2,
+  repeatDelay = 0.4,
+  pulse = true,
+  label = "Loading",
+  className,
+}: ZigzagTraceProps) {
   const reduceMotion = useReducedMotion();
-  const bolt = reduceMotion ? DRAWN : DRAW;
+  const c = { ...DEFAULT_COLORS, ...colors };
+
+  // One clock for the whole loader: bolt layers and frame pulse share it.
+  const loop = {
+    duration,
+    times: TIMES,
+    ease: "easeInOut",
+    repeat: Infinity,
+    repeatType: "loop",
+    repeatDelay,
+  } satisfies Transition;
+  const bolt = reduceMotion ? DRAWN : { ...DRAW, transition: loop };
+
   // useId contains colons, which are awkward inside url(#…)
   const id = useId().replace(/:/g, "");
   const boltGradientId = `bolt-${id}`;
   const metalGradientId = `metal-${id}`;
-  
+
   return (
     <div
       role="status"
-      aria-label="Loading"
-      className="relative grid size-full place-items-center overflow-hidden rounded-[inherit]"
+      aria-label={label}
+      className={className}
+      style={FRAME_STYLE}
     >
-      {!reduceMotion && (
+      {pulse && !reduceMotion && (
         <motion.div
           aria-hidden
-          className="absolute inset-0 rounded-[inherit] bg-[#8338eb]/12"
+          style={{ ...FRAME_LAYER_STYLE, backgroundColor: c.frame }}
           {...PULSE}
+          transition={loop}
         />
       )}
 
       <svg
         aria-hidden
-        viewBox="0 0 58 100"
+        viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
+        width={(size * VIEWBOX.width) / VIEWBOX.height}
+        height={size}
         fill="none"
-        className="relative h-24 overflow-visible"
+        style={{ position: "relative", overflow: "visible" }}
       >
         <defs>
-          {/* userSpaceOnUse: light → dark across the whole bolt, not per path */}
           {/* diagonal, so the bands sweep the same way as the light */}
           <linearGradient
             id={metalGradientId}
             gradientUnits="userSpaceOnUse"
             x1="0"
             y1="0"
-            x2="58"
-            y2="100"
+            x2={VIEWBOX.width}
+            y2={VIEWBOX.height}
           >
-            {METAL_STOPS.map(({ offset, color }) => (
-              <stop key={offset} offset={offset} stopColor={color} />
+            {c.metal.map((color, i) => (
+              <stop
+                key={i}
+                offset={c.metal.length > 1 ? i / (c.metal.length - 1) : 0}
+                stopColor={color}
+              />
             ))}
           </linearGradient>
+          {/* userSpaceOnUse: light → dark across the whole bolt, not per path */}
           <linearGradient
             id={boltGradientId}
             gradientUnits="userSpaceOnUse"
             x1="0"
             y1="0"
             x2="0"
-            y2="100"
+            y2={VIEWBOX.height}
           >
-            <stop offset="0" stopColor={BOLT_LIGHT} />
-            <stop offset="1" stopColor={BOLT_DARK} />
+            <stop offset="0" stopColor={c.boltLight} />
+            <stop offset="1" stopColor={c.boltDark} />
           </linearGradient>
         </defs>
 
         {/* track: flat 2D */}
-        <path d={PATH} stroke={TRACK} {...STROKE_PROPS} />
+        <path d={PATH} stroke={c.track} {...STROKE_PROPS} />
 
-        {/* bolt: shadow on the track, depth, face, highlight – all share one animation */}
+        {/* bolt: shadow on the track, metal side, face, highlight – one animation */}
         <g transform={SHADOW_OFFSET}>
           <motion.path
             d={PATH}
-            stroke={BOLT_DEPTH}
+            stroke={c.shadow}
             strokeOpacity={0.18}
             {...STROKE_PROPS}
             strokeWidth={STROKE_WIDTH + 2}
@@ -163,7 +234,7 @@ export function ZigzagTrace() {
         <g transform={HIGHLIGHT_OFFSET}>
           <motion.path
             d={PATH}
-            stroke="white"
+            stroke={c.highlight}
             strokeOpacity={0.4}
             {...STROKE_PROPS}
             strokeWidth={2.4}

@@ -1,11 +1,12 @@
 name: CI
 
-# Runs on every pull request and every push to main. Make "Quality" and "E2E"
-# required checks on main (docs/ci-cd.md) so nothing reaches production untested.
+# Runs on every pull request and on pushes to main and prod. Make "Quality" and
+# "E2E" required checks on main and prod (docs/ci-cd.md) so nothing reaches
+# production untested.
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, prod]
 
 concurrency:
   group: ci-${{ github.ref }}

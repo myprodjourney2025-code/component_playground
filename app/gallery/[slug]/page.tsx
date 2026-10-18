@@ -72,6 +72,17 @@ async function ComponentDoc({ params }: { params: Params }) {
       <section className="space-y-6">
         <h2 className="text-xl font-semibold tracking-tight">Installation</h2>
 
+        {gallery.requirements && gallery.requirements.length > 0 && (
+          <ul className="space-y-2 rounded-xl border border-border bg-surface p-4 text-sm">
+            {gallery.requirements.map((r) => (
+              <li key={r.name} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="font-medium">{r.name}</span>
+                <span className="text-muted">{r.note}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
         {install && (
           <Step n={1} title="Install the dependency">
             <div className="flex items-center justify-between rounded-lg border border-white/10 bg-zinc-950 py-2 pl-4 pr-2">

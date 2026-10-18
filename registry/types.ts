@@ -42,6 +42,12 @@ export type GalleryProp = {
   description: string;
 };
 
+/** A must-have for the component to work. List only what is required. */
+export type GalleryRequirement = {
+  name: string;
+  note: string;
+};
+
 /**
  * Opt-in: experiments with this field appear in /gallery as a
  * copy-paste component (preview tabs, install, source, props).
@@ -53,6 +59,8 @@ export type GalleryConfig = {
   importPath: string;
   /** npm packages to install, e.g. ["motion"] */
   dependencies?: string[];
+  /** Must-have dependencies only */
+  requirements?: GalleryRequirement[];
   examples: GalleryExample[];
   props?: GalleryProp[];
 };

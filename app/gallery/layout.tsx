@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { isProduction } from "@/lib/env";
 
 export default function GalleryLayout({ children }: LayoutProps<"/gallery">) {
   return (
@@ -9,9 +10,11 @@ export default function GalleryLayout({ children }: LayoutProps<"/gallery">) {
             Component Gallery
           </Link>
           <div className="flex gap-4 text-muted">
-            <Link href="/playground" className="hover:text-foreground">
-              Playground
-            </Link>
+            {!isProduction && (
+              <Link href="/playground" className="hover:text-foreground">
+                Playground
+              </Link>
+            )}
           </div>
         </nav>
       </header>

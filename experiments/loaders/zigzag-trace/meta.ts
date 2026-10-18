@@ -13,6 +13,10 @@ export const meta = defineExperiment({
     fileName: "zigzag-trace.tsx",
     importPath: "@/components/zigzag-trace",
     dependencies: ["motion"],
+    requirements: [
+      { name: "React 18 or 19", note: "Uses hooks such as useId." },
+      { name: "motion", note: "Animation library. Installed in step 1." },
+    ],
     examples: [
       { name: "Default", file: "examples/default.tsx", load: () => import("./examples/default") },
       { name: "Teal", file: "examples/teal.tsx", load: () => import("./examples/teal") },

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { ThemeSwitch } from "@/experiments/switches/theme-switch/component";
 import { cn } from "@/lib/cn";
 import type { StageLayout } from "@/registry/types";
 
 /**
  * The stage every experiment is rendered on.
- * Toolbar: dark/light toggle for the stage, replay (remounts the demo).
+ * Toolbar: site theme toggle, replay (remounts the demo).
  */
 export function Canvas({
   children,
@@ -17,14 +18,13 @@ export function Canvas({
   layout?: StageLayout;
   title?: string;
 }) {
-  const [dark, setDark] = useState(false);
   const [run, setRun] = useState(0);
 
   return (
     <div
       className={cn(
         "relative flex h-full w-full flex-col",
-        dark ? "dark bg-zinc-900" : "bg-zinc-200",
+        "bg-zinc-200 dark:bg-zinc-900",
       )}
     >
       <div className="flex h-11 shrink-0 items-center justify-between border-b border-black/10 bg-background/80 px-4 text-sm backdrop-blur dark:border-white/10">
@@ -33,9 +33,7 @@ export function Canvas({
           <ToolbarButton onClick={() => setRun((n) => n + 1)}>
             ↻ Replay
           </ToolbarButton>
-          <ToolbarButton onClick={() => setDark((d) => !d)}>
-            {dark ? "☀ Light" : "☾ Dark"}
-          </ToolbarButton>
+          <ThemeSwitch />
         </div>
       </div>
 

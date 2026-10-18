@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CATEGORIES, galleryComponents } from "@/registry";
 
 export const metadata: Metadata = { title: "Components" };
@@ -27,7 +28,9 @@ export default function ComponentsIndex() {
               href={`/components/${item.slug}`}
               className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-foreground/40"
             >
-              <CardPreview load={item.gallery?.examples[0]?.load} />
+              <Suspense fallback={<div className="h-72 border-b border-border" />}>
+                <CardPreview load={item.gallery?.examples[0]?.load} />
+              </Suspense>
               <div className="p-5">
                 <p className="text-xs uppercase tracking-wider text-muted">
                   {CATEGORIES[item.category]}
@@ -36,9 +39,6 @@ export default function ComponentsIndex() {
                 {item.description && (
                   <p className="mt-1 text-sm text-muted">{item.description}</p>
                 )}
-                <p className="mt-3 text-xs text-muted">
-                  {item.gallery?.examples.length} variants
-                </p>
               </div>
             </Link>
           </li>
@@ -58,10 +58,10 @@ async function CardPreview({
   const { default: Example } = await load();
 
   return (
-    // Decorative: hidden from assistive tech so the loader's status role
-    // isn't announced from inside a link.
+    // Decorative: `inert` makes it unclickable and unfocusable (no button or
+    // status role nested inside the link) and hides it from assistive tech.
     <div
-      aria-hidden
+      inert
       className="flex h-72 items-center justify-center overflow-hidden border-b border-border bg-white text-zinc-900"
     >
       <Example />

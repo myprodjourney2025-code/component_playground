@@ -9,6 +9,7 @@ export const CATEGORIES = {
   loaders: "Loaders",
   buttons: "Buttons",
   inputs: "Inputs & forms",
+  switches: "Switches",
   cards: "Cards",
   navigation: "Navigation",
   feedback: "Feedback & overlays",

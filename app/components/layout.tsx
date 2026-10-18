@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeSwitch } from "@/experiments/switches/theme-switch/component";
 import { isProduction } from "@/lib/env";
 
 export default function ComponentsLayout({
@@ -17,6 +18,7 @@ export default function ComponentsLayout({
                 Playground
               </Link>
             )}
+            <ThemeSwitch />
           </div>
         </nav>
       </header>

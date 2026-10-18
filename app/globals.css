@@ -1,9 +1,11 @@
 @import "tailwindcss";
 
-/* `dark:` is driven by a `.dark` class so the canvas can toggle it per stage */
+/* `dark:` is driven by a `.dark` class on <html> (set before first paint by the
+   inline script in layout.tsx, toggled by components/theme-toggle.tsx) */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
   --muted: #71717a;
@@ -11,14 +13,13 @@
   --surface: #fafafa;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --muted: #a1a1aa;
-    --border: #27272a;
-    --surface: #111113;
-  }
+:root.dark {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #a1a1aa;
+  --border: #27272a;
+  --surface: #111113;
 }
 
 @theme inline {

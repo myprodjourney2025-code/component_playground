@@ -31,7 +31,7 @@ jobs:
           BASE_URL: ${{ vars.SITE_URL || github.event.deployment_status.environment_url }}
       - name: Upload report
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: smoke-report
           path: |

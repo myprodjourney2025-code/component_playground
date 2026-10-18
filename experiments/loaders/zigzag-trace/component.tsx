@@ -12,15 +12,23 @@ import {
 const PATH = "M14.9 92.1 L31.3 75.7 H7.7 L34.7 48.7 H8.7 L49.7 7.7";
 const STROKE_WIDTH = 11.4;
 
-const TRACK_LIGHT = "#eaf1ff";
-const TRACK_DARK = "#c9d8f7";
-const TRACK_DEPTH = "#b8c8ee";
+const TRACK = "#dbe7ff";
 const BOLT_LIGHT = "#a46dff";
 const BOLT_DARK = "#7430dc";
 const BOLT_DEPTH = "#4c1d95";
 
+// Metal side: dark purple with bright specular bands, like polished metal.
+const METAL_STOPS = [
+  { offset: 0, color: "#2e1065" },
+  { offset: 0.22, color: "#9a76e6" },
+  { offset: 0.4, color: "#4c1d95" },
+  { offset: 0.62, color: "#1e0a4a" },
+  { offset: 0.8, color: "#7d55d4" },
+  { offset: 1, color: "#3b1a7a" },
+];
+
 // Light comes from the top-left, so depth falls to the bottom-right.
-const DEPTH_OFFSET = "translate(1.6 2.2)";
+const DEPTH_OFFSET = "translate(2.2 3)";
 const HIGHLIGHT_OFFSET = "translate(-1.8 -1.8)";
 // The bolt sits above the track, so its shadow lands a bit further away.
 const SHADOW_OFFSET = "translate(2.4 3.4)";
@@ -74,8 +82,8 @@ export function ZigzagTrace() {
   // useId contains colons, which are awkward inside url(#…)
   const id = useId().replace(/:/g, "");
   const boltGradientId = `bolt-${id}`;
-  const trackGradientId = `track-${id}`;
-
+  const metalGradientId = `metal-${id}`;
+  
   return (
     <div
       role="status"
@@ -94,20 +102,22 @@ export function ZigzagTrace() {
         aria-hidden
         viewBox="0 0 58 100"
         fill="none"
-        className="relative h-24 overflow-visible drop-shadow-[0_4px_6px_rgba(76,29,149,0.25)]"
+        className="relative h-24 overflow-visible"
       >
         <defs>
-          {/* userSpaceOnUse: light → dark across the whole shape, not per path */}
+          {/* userSpaceOnUse: light → dark across the whole bolt, not per path */}
+          {/* diagonal, so the bands sweep the same way as the light */}
           <linearGradient
-            id={trackGradientId}
+            id={metalGradientId}
             gradientUnits="userSpaceOnUse"
             x1="0"
             y1="0"
-            x2="0"
+            x2="58"
             y2="100"
           >
-            <stop offset="0" stopColor={TRACK_LIGHT} />
-            <stop offset="1" stopColor={TRACK_DARK} />
+            {METAL_STOPS.map(({ offset, color }) => (
+              <stop key={offset} offset={offset} stopColor={color} />
+            ))}
           </linearGradient>
           <linearGradient
             id={boltGradientId}
@@ -122,27 +132,8 @@ export function ZigzagTrace() {
           </linearGradient>
         </defs>
 
-        {/* track: depth, face, highlight */}
-        <path
-          d={PATH}
-          stroke={TRACK_DEPTH}
-          transform={DEPTH_OFFSET}
-          {...STROKE_PROPS}
-        />
-        <path
-          d={PATH}
-          stroke={`url(#${trackGradientId})`}
-          {...STROKE_PROPS}
-        />
-        <g transform={HIGHLIGHT_OFFSET}>
-          <path
-            d={PATH}
-            stroke="white"
-            strokeOpacity={0.6}
-            {...STROKE_PROPS}
-            strokeWidth={2.4}
-          />
-        </g>
+        {/* track: flat 2D */}
+        <path d={PATH} stroke={TRACK} {...STROKE_PROPS} />
 
         {/* bolt: shadow on the track, depth, face, highlight – all share one animation */}
         <g transform={SHADOW_OFFSET}>
@@ -158,7 +149,7 @@ export function ZigzagTrace() {
         <g transform={DEPTH_OFFSET}>
           <motion.path
             d={PATH}
-            stroke={BOLT_DEPTH}
+            stroke={`url(#${metalGradientId})`}
             {...STROKE_PROPS}
             {...bolt}
           />

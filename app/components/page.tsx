@@ -1,18 +1,59 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { SITE, absoluteUrl } from "@/lib/site";
 import { CATEGORIES, galleryComponents } from "@/registry";
+import { JsonLd } from "../_components/json-ld";
+import { ShareLinks } from "./_components/share-links";
 
-export const metadata: Metadata = { title: "Components" };
+export const metadata: Metadata = {
+  title: "Free copy-paste React components with motion",
+  description: SITE.description,
+  alternates: { canonical: "/components" },
+  openGraph: { url: "/components", title: SITE.name, description: SITE.description },
+};
 
 export default function ComponentsIndex() {
   return (
     <>
-      <h1 className="text-3xl font-semibold tracking-tight">Components</h1>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              name: SITE.name,
+              url: absoluteUrl("/components"),
+              description: SITE.description,
+              inLanguage: "en",
+              author: { "@type": "Person", name: SITE.author.name, url: SITE.author.url },
+            },
+            {
+              "@type": "ItemList",
+              name: "Components",
+              itemListElement: galleryComponents.map((c, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: c.title,
+                url: absoluteUrl(`/components/${c.slug}`),
+              })),
+            },
+          ],
+        }}
+      />
+      <h1 className="text-3xl font-semibold tracking-tight">
+        Free copy-paste React components
+      </h1>
       <p className="mt-2 max-w-xl text-muted">
-        Copy-paste components. Pick one, preview its variants, then copy the
-        code into your project.
+        Animated components you can use in any React project. Pick one,
+        preview its variants, copy the code. MIT licensed, no sign-up.
       </p>
+      <div className="mt-4">
+        <ShareLinks
+          url={absoluteUrl("/components")}
+          text="Free copy-paste React components with motion"
+        />
+      </div>
 
       {galleryComponents.length === 0 && (
         <p className="mt-10 rounded-xl border border-dashed border-border p-8 text-muted">

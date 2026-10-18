@@ -125,3 +125,21 @@ your Demo → renders it inside `<Canvas>` (stage + toolbar).
 - Experiments never import from each other; shared code moves up to
   `components/`, `hooks/` or `lib/`.
 - Anything using state, effects or `motion` needs `"use client"`.
+
+---
+
+## Update: public site (October 2026)
+
+The repo is now a public component gallery. What changed since the sections above:
+
+- `app/gallery` became `app/components`; `/` redirects there.
+- `app/playground` is dev-only (`notFound()` in production).
+- `registry` entries with a `gallery` config are published: examples, props,
+  requirements and the component source are read at build time.
+- Site identity (name, URL, repo, author) lives in `lib/site.ts`. Change the
+  domain there and every canonical URL, sitemap entry and OG tag follows.
+- SEO/AEO/GEO: `app/sitemap.ts`, `app/robots.ts`, `app/llms.txt`,
+  `app/llms-full.txt`, JSON-LD (`app/_components/json-ld.tsx`) and generated
+  social images (`opengraph-image.tsx`, `lib/og.tsx`).
+- Theme: `experiments/switches/theme-switch/component.tsx` exports both
+  `ThemeScript` (no-flash, follows the system) and `ThemeSwitch`.

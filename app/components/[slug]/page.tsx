@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { readGallerySource } from "@/lib/gallery/read-source";
-import { galleryComponents } from "@/registry";
+import { SITE, absoluteUrl } from "@/lib/site";
+import { CATEGORIES, galleryComponents } from "@/registry";
+import { JsonLd } from "../../_components/json-ld";
 import { CodeBlock } from "../_components/code-block";
 import { CopyButton } from "../_components/copy-button";
+import { ShareLinks } from "../_components/share-links";
 import { VariantViewer, type Variant } from "../_components/variant-viewer";
 
 type Params = PageProps<"/components/[slug]">["params"];
@@ -19,7 +22,19 @@ export async function generateMetadata({
   params,
 }: PageProps<"/components/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  return { title: find(slug)?.title };
+  const item = find(slug);
+  if (!item) return {};
+
+  const title = `${item.title}: free copy-paste React ${CATEGORIES[item.category].toLowerCase()} component`;
+  const description = `${item.description ?? item.title} Copy the code, MIT licensed.`;
+  return {
+    title,
+    description,
+    keywords: item.tags,
+    alternates: { canonical: `/components/${slug}` },
+    openGraph: { title, description, url: `/components/${slug}`, type: "article" },
+    twitter: { card: "summary_large_image", title, description },
+  };
 }
 
 export default function ComponentPage({
@@ -56,15 +71,54 @@ async function ComponentDoc({ params }: { params: Params }) {
     ? `npm install ${gallery.dependencies.join(" ")}`
     : null;
 
+  const pageUrl = absoluteUrl(`/components/${experiment.slug}`);
+
   return (
     <article className="space-y-12">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          {experiment.title}
-        </h1>
-        {experiment.description && (
-          <p className="mt-2 max-w-xl text-muted">{experiment.description}</p>
-        )}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "SoftwareSourceCode",
+              name: experiment.title,
+              description: experiment.description,
+              url: pageUrl,
+              programmingLanguage: "TypeScript",
+              runtimePlatform: "React",
+              codeRepository: SITE.repo,
+              license: SITE.licenseUrl,
+              isAccessibleForFree: true,
+              keywords: experiment.tags,
+              dateCreated: experiment.createdAt,
+              author: { "@type": "Person", name: SITE.author.name, url: SITE.author.url },
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Components", item: absoluteUrl("/components") },
+                { "@type": "ListItem", position: 2, name: experiment.title, item: pageUrl },
+              ],
+            },
+          ],
+        }}
+      />
+      <header className="space-y-4">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-muted">
+            {CATEGORIES[experiment.category]}
+          </p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight">
+            {experiment.title}
+          </h1>
+          {experiment.description && (
+            <p className="mt-2 max-w-xl text-muted">{experiment.description}</p>
+          )}
+        </div>
+        <ShareLinks
+          url={pageUrl}
+          text={`${experiment.title}: a free copy-paste React component`}
+        />
       </header>
 
       <VariantViewer variants={variants} />

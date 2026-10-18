@@ -1,28 +1,16 @@
-import Link from "next/link";
-import { ThemeSwitch } from "@/experiments/switches/theme-switch/component";
-import { isProduction } from "@/lib/env";
+import { SiteFooter } from "../_components/site-footer";
+import { SiteHeader } from "../_components/site-header";
 
 export default function ComponentsLayout({
   children,
 }: LayoutProps<"/components">) {
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-border">
-        <nav className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4 text-sm">
-          <Link href="/components" className="font-semibold tracking-tight">
-            Components
-          </Link>
-          <div className="flex gap-4 text-muted">
-            {!isProduction && (
-              <Link href="/playground" className="hover:text-foreground">
-                Playground
-              </Link>
-            )}
-            <ThemeSwitch />
-          </div>
-        </nav>
-      </header>
-      <main className="mx-auto max-w-4xl px-6 py-12">{children}</main>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-4xl flex-1 px-6 py-12">
+        {children}
+      </main>
+      <SiteFooter />
     </div>
   );
 }

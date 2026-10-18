@@ -50,7 +50,7 @@ export type GalleryRequirement = {
 };
 
 /**
- * Opt-in: experiments with this field appear in /gallery as a
+ * Opt-in: experiments with this field appear in /components as a
  * copy-paste component (preview tabs, install, source, props).
  */
 export type GalleryConfig = {
@@ -78,7 +78,7 @@ export type Experiment = {
   /** ISO date, e.g. "2026-10-17" – used for sorting "newest first" */
   createdAt: string;
   layout?: StageLayout;
-  /** Set to publish this experiment in /gallery */
+  /** Set to publish this experiment in /components */
   gallery?: GalleryConfig;
   /** Lazy import of the demo so only the open experiment is bundled */
   load: () => Promise<{ default: ComponentType }>;

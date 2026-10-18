@@ -36,5 +36,5 @@ export function groupByCategory() {
     .filter((group) => group.items.length > 0);
 }
 
-/** Experiments published to /gallery as copy-paste components. */
+/** Experiments published to /components as copy-paste components. */
 export const galleryComponents = experiments.filter((e) => e.gallery);

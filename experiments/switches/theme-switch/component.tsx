@@ -138,6 +138,8 @@ export function ThemeSwitch({
   }
 
   return (
+    // No border: the carved shading inside the track defines its edge, so the
+    // switch looks the same on light, dark and tinted backgrounds.
     <button
       type="button"
       role="switch"
@@ -147,84 +149,88 @@ export function ThemeSwitch({
       style={
         isControlled ? ({ "--on": checked ? 1 : 0 } as CSSProperties) : undefined
       }
-      className={`group relative h-8 w-16 shrink-0 cursor-pointer overflow-hidden rounded-full border border-black/40 p-0.5 shadow-[0_1px_0_rgba(255,255,255,0.3)] outline-offset-2 [--on:0] focus-visible:outline-2 focus-visible:outline-violet-500 dark:[--on:1] ${className}`}
+      className={`group relative block h-8 w-16 shrink-0 cursor-pointer rounded-full outline-offset-2 [--on:0] focus-visible:outline-2 focus-visible:outline-violet-500 dark:[--on:1] ${className}`}
     >
-      {/* Sky: day gradient fades out, night gradient fades in */}
-      <span
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-sky-300 to-sky-100 opacity-[calc(1_-_var(--on))] transition-opacity duration-500 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden
-        className="absolute inset-0 bg-gradient-to-b from-slate-950 to-indigo-950 opacity-[var(--on)] transition-opacity duration-500 motion-reduce:transition-none"
-      />
+      <span className="relative block size-full overflow-hidden rounded-full">
+        {/* Sky: day gradient fades out, night gradient fades in */}
+        <span
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-sky-400 to-sky-100 opacity-[calc(1_-_var(--on))] transition-opacity duration-500 motion-reduce:transition-none"
+        />
+        <span
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-b from-slate-950 to-indigo-950 opacity-[var(--on)] transition-opacity duration-500 motion-reduce:transition-none"
+        />
 
-      {/* Clouds (day) */}
-      <span
-        aria-hidden
-        className="absolute right-2 top-2.5 h-2 w-5 rounded-full bg-white/80 opacity-[calc(1_-_var(--on))] blur-[1px] transition-opacity duration-500 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden
-        className="absolute right-4 top-4.5 h-1.5 w-4 rounded-full bg-white/60 opacity-[calc(1_-_var(--on))] blur-[1px] transition-opacity duration-500 motion-reduce:transition-none"
-      />
+        {/* Clouds (day) */}
+        <span
+          aria-hidden
+          className="absolute right-2 top-2 h-2 w-5 rounded-full bg-white/85 opacity-[calc(1_-_var(--on))] blur-[1px] transition-opacity duration-500 motion-reduce:transition-none"
+        />
+        <span
+          aria-hidden
+          className="absolute right-4 top-4 h-1.5 w-4 rounded-full bg-white/60 opacity-[calc(1_-_var(--on))] blur-[1px] transition-opacity duration-500 motion-reduce:transition-none"
+        />
 
-      {/* Stars (night) */}
-      <span
-        aria-hidden
-        className="absolute left-2.5 top-2 size-0.5 rounded-full bg-white opacity-[calc(var(--on)*0.9)] transition-opacity delay-200 duration-500 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden
-        className="absolute left-5 top-4.5 size-[3px] rounded-full bg-white opacity-[calc(var(--on)*0.7)] transition-opacity delay-300 duration-500 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden
-        className="absolute left-3.5 top-5.5 size-0.5 rounded-full bg-indigo-200 opacity-[calc(var(--on)*0.8)] transition-opacity delay-100 duration-500 motion-reduce:transition-none"
-      />
+        {/* Stars (night) */}
+        <span
+          aria-hidden
+          className="absolute left-2.5 top-2 size-0.5 rounded-full bg-white opacity-[calc(var(--on)*0.9)] transition-opacity delay-200 duration-500 motion-reduce:transition-none"
+        />
+        <span
+          aria-hidden
+          className="absolute left-5 top-4 size-[3px] rounded-full bg-white opacity-[calc(var(--on)*0.7)] transition-opacity delay-300 duration-500 motion-reduce:transition-none"
+        />
+        <span
+          aria-hidden
+          className="absolute left-3.5 top-5 size-0.5 rounded-full bg-indigo-200 opacity-[calc(var(--on)*0.8)] transition-opacity delay-100 duration-500 motion-reduce:transition-none"
+        />
 
-      {/* Carved-in track: shading painted over the sky, under the knob.
-          Two layers (day / night) cross-fade. */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-black/15 via-transparent to-white/10 opacity-[calc(1_-_var(--on))] shadow-[inset_0_2px_5px_rgba(0,0,0,0.3),inset_0_-1px_1px_rgba(255,255,255,0.35)] transition-opacity duration-500 motion-reduce:transition-none"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-gradient-to-b from-black/15 via-transparent to-white/10 opacity-[var(--on)] shadow-[inset_0_3px_6px_rgba(0,0,0,0.65),inset_0_-1px_1px_rgba(255,255,255,0.1)] transition-opacity duration-500 motion-reduce:transition-none"
-      />
+        {/* Depth: the track is carved into the surface. A soft shadow falls from
+            the top edge, a faint one from the sides, and a thin light catches the
+            bottom lip. The night layer deepens the shadow as the sky darkens. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_2px_3px_rgba(0,0,0,0.28),inset_0_0_7px_rgba(0,0,0,0.14),inset_0_-1px_1px_rgba(255,255,255,0.4)]"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-full opacity-[var(--on)] shadow-[inset_0_3px_5px_rgba(0,0,0,0.5),inset_0_0_9px_rgba(0,0,0,0.35)] transition-opacity duration-500 motion-reduce:transition-none"
+        />
 
-      {/* Knob: slides, spins, and morphs sun → crescent moon */}
-      <span
-        aria-hidden
-        className={`relative block size-7 translate-x-[calc(var(--on)*30px)] rounded-full drop-shadow-[0_2px_3px_rgba(0,0,0,0.35)] transition-transform duration-500 group-active:scale-90 motion-reduce:transition-none ${SPRING}`}
-      >
-        <span className="absolute inset-0 rotate-[calc(var(--on)*360deg)] transition-transform duration-700 motion-reduce:transition-none">
-          {/* Sun: glowing core with a ring of rays */}
-          <span className="absolute inset-0 opacity-[calc(1_-_var(--on))] drop-shadow-[0_0_6px_rgba(251,191,36,0.75)] transition-opacity duration-500 motion-reduce:transition-none">
+        {/* Knob: slides, spins, and morphs sun to crescent moon. It sits above the
+            shadows and casts its own, so it reads as raised inside the groove. */}
+        <span
+          aria-hidden
+          className={`absolute left-1 top-1 block size-6 translate-x-[calc(var(--on)*32px)] rounded-full drop-shadow-[0_1.5px_1.5px_rgba(0,0,0,0.4)] transition-transform duration-500 group-active:scale-90 motion-reduce:transition-none ${SPRING}`}
+        >
+          <span className="absolute inset-0 rotate-[calc(var(--on)*360deg)] transition-transform duration-700 motion-reduce:transition-none">
+            {/* Sun: glowing core with a ring of rays */}
+            <span className="absolute inset-0 opacity-[calc(1_-_var(--on))] drop-shadow-[0_0_5px_rgba(251,191,36,0.7)] transition-opacity duration-500 motion-reduce:transition-none">
+              <svg
+                viewBox="0 0 28 28"
+                className="absolute inset-0 size-full text-amber-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <path d="M22.5 14H26M14 22.5V26M5.5 14H2M14 5.5V2" />
+                <path d="M20 20l2.5 2.5M8 20l-2.5 2.5M8 8L5.5 5.5M20 8l2.5-2.5" />
+              </svg>
+              <span className="absolute inset-0 m-auto size-3 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fffbe0,#fcd34d_55%,#f59e0b)]" />
+            </span>
+            {/* Moon: crescent, glowing */}
             <svg
-              viewBox="0 0 28 28"
-              className="absolute inset-0 size-full text-amber-300"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
+              viewBox="0 0 24 24"
+              className="absolute inset-0 m-auto size-5 text-slate-100 opacity-[var(--on)] drop-shadow-[0_0_4px_rgba(199,210,254,0.8)] transition-opacity duration-500 motion-reduce:transition-none"
             >
-              <path d="M22.5 14H26M14 22.5V26M5.5 14H2M14 5.5V2" />
-              <path d="M20 20l2.5 2.5M8 20l-2.5 2.5M8 8L5.5 5.5M20 8l2.5-2.5" />
+              <path
+                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                fill="currentColor"
+              />
             </svg>
-            <span className="absolute inset-0 m-auto size-3.5 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fffbe0,#fcd34d_55%,#f59e0b)]" />
           </span>
-          {/* Moon: crescent, glowing */}
-          <svg
-            viewBox="0 0 24 24"
-            className="absolute inset-0 m-auto size-[22px] text-slate-100 opacity-[var(--on)] drop-shadow-[0_0_4px_rgba(199,210,254,0.8)] transition-opacity duration-500 motion-reduce:transition-none"
-          >
-            <path
-              d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-              fill="currentColor"
-            />
-          </svg>
         </span>
       </span>
     </button>

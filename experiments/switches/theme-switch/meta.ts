@@ -17,9 +17,10 @@ export const meta = defineExperiment({
       { name: "Tailwind CSS v4", note: "Styled with utility classes. Add @custom-variant dark (&:where(.dark, .dark *)); to your CSS so the dark: variant follows the dark class on <html>." },
       { name: "<ThemeScript />", note: "Render it inside <head> of your root layout so the theme is set before the first paint. Add suppressHydrationWarning to <html>." },
     ],
+    // Animated stand-in for the card on the gallery page only (not a variant tab).
+    cardPreview: () => import("./card-preview"),
     examples: [
-      { name: "Auto-play", file: "examples/autoplay.tsx", load: () => import("./examples/autoplay") },
-      { name: "Interactive", file: "examples/default.tsx", load: () => import("./examples/default") },
+      { name: "Flip the Sky", file: "examples/default.tsx", load: () => import("./examples/default") },
       { name: "In a header", file: "examples/header.tsx", load: () => import("./examples/header") },
     ],
     props: [

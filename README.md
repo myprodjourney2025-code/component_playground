@@ -8,6 +8,7 @@ Built with Next.js (App Router, Cache Components) · Tailwind CSS v4 · Motion.
 
 > Full explanation of every folder: [`docs/project-structure.md`](docs/project-structure.md)
 > Launch and sharing checklist: [`docs/launch.md`](docs/launch.md)
+> Tests and the publishing rule: [`docs/testing.md`](docs/testing.md) · CI/CD: [`docs/ci-cd.md`](docs/ci-cd.md)
 
 ## Routes
 
@@ -52,6 +53,9 @@ lib/                       site config (site.ts), OG images, source reader
    `examples`, `props`, must-have `requirements`).
 3. Register `meta` in `registry/index.ts`.
 4. Preview at `/playground/<slug>` (dev) and `/components/<slug>`.
+5. **Write `tests/unit/<slug>.test.tsx`.** No component is published without
+   tests; the suite fails if the file is missing. See [`docs/testing.md`](docs/testing.md).
+6. `npm run check`, then `npm run test:e2e`.
 
 The sitemap, social image, `llms.txt` and structured data update automatically
 from the registry. New category? Add it to `CATEGORIES` in `registry/types.ts`.
@@ -68,6 +72,8 @@ from the registry. New category? Add it to `CATEGORIES` in `registry/types.ts`.
 npm install
 npm run dev     # http://localhost:3000
 npm run build   # production build
+npm run check   # lint + types + unit tests
+npm run test:e2e  # build + Playwright + accessibility (stop `next dev` first)
 ```
 
 ## License

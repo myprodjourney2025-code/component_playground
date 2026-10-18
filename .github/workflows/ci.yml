@@ -1,0 +1,65 @@
+name: CI
+
+# Runs on every pull request and every push to main. Make "Quality" and "E2E"
+# required checks on main (docs/ci-cd.md) so nothing reaches production untested.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Generate route types
+        run: npx next typegen
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit and component tests
+        run: npm test
+
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Production build
+        run: npm run build
+      - name: End-to-end and accessibility tests
+        run: npm run test:e2e
+        env:
+          CI: true
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

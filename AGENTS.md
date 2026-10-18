@@ -170,6 +170,29 @@ See `README.md` for the full layout. In short:
   components.
 - Commit only when the owner asks. Small commits, one experiment each.
 
+### Publishing a component = tests are part of "done"
+
+A component is **not published** (no `gallery` config in `meta.ts`) until all of
+these are true. CI blocks the deploy if they are not.
+
+1. `tests/unit/<slug>.test.tsx` exists and covers the component's contract:
+   renders, props that change output, accessible role/name, keyboard or click
+   behaviour, `prefers-reduced-motion`, and any dark/light logic.
+   (`tests/unit/registry.test.ts` fails if the file is missing.)
+2. Every example in `gallery.examples` mounts and unmounts cleanly. This is
+   automatic (`gallery-examples.test.tsx`); just keep examples importing
+   `"../component"`.
+3. `component.tsx` is copy-paste safe: no `@/` or relative imports, only React
+   and the packages listed in `gallery.dependencies` (checked automatically).
+4. `npm run check` (lint, types, unit tests) passes, then `npm run test:e2e`
+   (includes an accessibility scan of the new page in light and dark).
+5. Anything new that is not automatic (a new interaction, a new route) gets an
+   e2e test in `tests/e2e/`.
+
+Mentor mode still applies: guide the owner to write the tests (what to assert and
+why) instead of writing them, unless the owner explicitly asks. Full guide:
+`docs/testing.md`.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

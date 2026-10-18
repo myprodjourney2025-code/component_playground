@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ThemeSwitch } from "../component";
+import { ThemeSwitch } from "./component";
 
 export default function Example() {
   const [dark, setDark] = useState(false);

@@ -1,0 +1,40 @@
+name: Post-deploy smoke test
+
+# Vercel reports each finished deployment to GitHub. After a production deploy
+# succeeds, check the live site. Set the repository variable SITE_URL
+# (Settings > Secrets and variables > Actions > Variables) to the public URL,
+# e.g. https://components.samiransetua.in. Without it, the deployment URL is used.
+on: deployment_status
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Smoke test production
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke test the live site
+        run: npx playwright test tests/e2e/smoke.spec.ts
+        env:
+          BASE_URL: ${{ vars.SITE_URL || github.event.deployment_status.environment_url }}
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: smoke-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

@@ -3,17 +3,18 @@
 Not legal advice. Check anything that matters to you with a qualified person.
 
 ## 1. Before going live
-- [ ] Delete dead code (see "Cleanup" below) and remove `redirects()` from `next.config.ts`.
+- [x] Dead code deleted; `/gallery` returns 404.
 - [ ] `npm run build` passes, `npm run start`: `/playground` returns 404.
 - [ ] Look at light and dark mode, the theme reveal, and previews in Chrome, Safari and Firefox.
-- [ ] Make the GitHub repo public (it is linked from the header).
+- [x] GitHub repo is public (linked from the header).
 
-## 2. Deploy to components.samiransetua.in
-1. Deploy the repo (Vercel is the simplest for Next.js).
-2. Add the domain `components.samiransetua.in` to the project.
-3. At your DNS provider for `samiransetua.in`, add the record the host shows
+## 2. Deploy (done) and map the domain
+The site is **already deployed on Vercel**. Only the domain mapping is left:
+1. Vercel > Project > **Settings > Domains** > add `components.samiransetua.in`.
+2. At the DNS provider for `samiransetua.in`, add the record Vercel shows
    (usually `CNAME components -> cname.vercel-dns.com`).
-4. Wait for HTTPS to be issued, then open the site over `https://`.
+3. Wait for HTTPS, then open the site over `https://`.
+4. In GitHub, add the Actions variable `SITE_URL=https://components.samiransetua.in` (see `docs/ci-cd.md`).
 
 ## 3. Search engines
 - Add the domain in Google Search Console (a "Domain" property verifies with one DNS TXT record), then submit `https://components.samiransetua.in/sitemap.xml`.
@@ -43,8 +44,3 @@ Not legal advice. Check anything that matters to you with a qualified person.
 - Contact for takedowns and questions: set in `lib/site.ts` (`contactEmail`), shown on `/privacy` and in the footer.
 - Domain, hosting and Search Console accounts: enable 2FA.
 
-## Cleanup (needs a stopped dev server)
-```powershell
-Remove-Item -Recurse -Force app\gallery, components
-Remove-Item -Force public\file.svg, public\globe.svg, public\next.svg, public\vercel.svg, public\window.svg
-```

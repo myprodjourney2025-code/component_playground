@@ -22,7 +22,13 @@ export function CodeBlock({
         <span className="font-mono text-xs text-zinc-400">{title}</span>
         <CopyButton text={code} label={`Copy ${title}`} />
       </figcaption>
-      <pre className="max-h-[28rem] overflow-auto p-4 font-mono text-[13px] leading-relaxed text-zinc-100">
+      {/* Focusable so keyboard users can scroll long code with the arrow keys. */}
+      <pre
+        tabIndex={0}
+        role="region"
+        aria-label={`${title} source code`}
+        className="max-h-[28rem] overflow-auto p-4 font-mono text-[13px] leading-relaxed text-zinc-100 outline-offset-[-2px] focus-visible:outline-2 focus-visible:outline-violet-400"
+      >
         <code>{code}</code>
       </pre>
     </figure>

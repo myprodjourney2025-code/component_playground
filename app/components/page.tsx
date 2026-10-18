@@ -71,7 +71,9 @@ export default function ComponentsIndex() {
               className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-foreground/40"
             >
               <Suspense fallback={<CardPreviewSkeleton />}>
-                <CardPreview load={item.gallery?.examples[0]?.load} />
+                <CardPreview
+                  load={item.gallery?.cardPreview ?? item.gallery?.examples[0]?.load}
+                />
               </Suspense>
               <div className="p-5">
                 <p className="text-xs uppercase tracking-wider text-muted">

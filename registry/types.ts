@@ -62,6 +62,12 @@ export type GalleryConfig = {
   dependencies?: string[];
   /** Must-have dependencies only */
   requirements?: GalleryRequirement[];
+  /**
+   * Optional live preview for the card on the gallery index, when the first
+   * variant is not the best thumbnail (e.g. it needs a click to animate).
+   * Defaults to the first example. Not shown as a variant tab.
+   */
+  cardPreview?: () => Promise<{ default: ComponentType }>;
   examples: GalleryExample[];
   props?: GalleryProp[];
 };

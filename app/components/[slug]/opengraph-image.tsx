@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { OG_SIZE, OG_TYPE, ogImage } from "@/lib/og";
+import { OG_SIZE, OG_TYPE, ogComponentImage, ogImage } from "@/lib/og";
 import { ogPreview } from "@/lib/og-previews";
 import { SITE } from "@/lib/site";
 import { CATEGORIES, galleryComponents } from "@/registry";
@@ -20,10 +20,9 @@ export default async function Image({
   const item = galleryComponents.find((e) => e.slug === slug);
   if (!item) notFound();
 
-  return ogImage({
-    eyebrow: `${CATEGORIES[item.category]} · ${SITE.shortName}`,
-    title: item.title,
-    subtitle: item.description,
-    preview: ogPreview(item.slug),
-  });
+  const preview = ogPreview(item.slug);
+  const eyebrow = `${CATEGORIES[item.category]} · ${SITE.shortName}`;
+
+  if (preview) return ogComponentImage({ eyebrow, preview });
+  return ogImage({ eyebrow, title: item.title, subtitle: item.description });
 }

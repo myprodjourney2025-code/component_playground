@@ -188,6 +188,17 @@ these are true. CI blocks the deploy if they are not.
    (includes an accessibility scan of the new page in light and dark).
 5. Anything new that is not automatic (a new interaction, a new route) gets an
    e2e test in `tests/e2e/`.
+6. **Share image.** Run `npm run dev` in one terminal and `npm run og:previews` in
+   another, then commit the new `public/og/<slug>.png`. It is a screenshot of the
+   real gallery card preview (never a hand-drawn copy), so the social card shows
+   exactly what the component looks like. `registry.test.ts` fails if it is
+   missing. Re-run it whenever the component's look changes.
+
+   The component share card layout is fixed: white background, the top line
+   (logo and "Category · Components") and the bottom line (domain, licence), and
+   the real preview in between. The name and description are not drawn on the
+   image; they appear below it from the page metadata (`meta.ts`). The gallery
+   (`/components`) card is the purple site-info card.
 
 Mentor mode still applies: guide the owner to write the tests (what to assert and
 why) instead of writing them, unless the owner explicitly asks. Full guide:

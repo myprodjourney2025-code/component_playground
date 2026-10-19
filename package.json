@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "og:previews": "node scripts/og-previews.mjs",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm test"
   },

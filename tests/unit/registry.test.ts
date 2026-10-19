@@ -54,6 +54,11 @@ describe.each(galleryComponents.map((e) => [e.slug, e] as const))(
       ).toBe(true);
     });
 
+    it("has a share-image preview (npm run og:previews)", () => {
+      const file = path.join(root, "public", "og", `${e.slug}.png`);
+      expect(existsSync(file), `missing ${path.relative(root, file)}`).toBe(true);
+    });
+
     it("ships every file the gallery reads", () => {
       for (const file of ["component.tsx", "demo.tsx", "meta.ts", "README.md"]) {
         expect(existsSync(path.join(dir, file)), file).toBe(true);

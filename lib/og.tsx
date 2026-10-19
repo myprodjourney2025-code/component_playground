@@ -169,7 +169,7 @@ export function ogComponentCard(item: OgCardItem) {
   return new ImageResponse(
     (
       <Frame footer="component.samiransetua.in · Free · MIT · Copy &amp; paste">
-        <Card item={item} height={290} large />
+        <Card item={item} height={220} large />
       </Frame>
     ),
     OG_SIZE,

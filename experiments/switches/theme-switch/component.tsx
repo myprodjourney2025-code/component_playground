@@ -95,14 +95,17 @@ export function ThemeSwitch({
     }
 
     const apply = () => root.classList.toggle("dark", next);
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduced || !document.startViewTransition) {
       apply();
       return;
     }
 
     // The new theme grows as a circle out of the switch.
-    const { left, top, width, height } = event.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      event.currentTarget.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
     const radius = Math.hypot(
@@ -147,7 +150,9 @@ export function ThemeSwitch({
       aria-label={label}
       onClick={toggle}
       style={
-        isControlled ? ({ "--on": checked ? 1 : 0 } as CSSProperties) : undefined
+        isControlled
+          ? ({ "--on": checked ? 1 : 0 } as CSSProperties)
+          : undefined
       }
       className={`group relative block h-8 w-16 shrink-0 cursor-pointer rounded-full outline-offset-2 [--on:0] focus-visible:outline-2 focus-visible:outline-violet-500 dark:[--on:1] ${className}`}
     >
@@ -155,11 +160,11 @@ export function ThemeSwitch({
         {/* Sky: day gradient fades out, night gradient fades in */}
         <span
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-sky-400 to-sky-100 opacity-[calc(1_-_var(--on))] transition-opacity duration-500 motion-reduce:transition-none"
+          className="absolute inset-0 bg-linear-to-b from-sky-400 to-sky-100 opacity-[calc(1_-_var(--on))] transition-opacity duration-500 motion-reduce:transition-none"
         />
         <span
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-slate-950 to-indigo-950 opacity-[var(--on)] transition-opacity duration-500 motion-reduce:transition-none"
+          className="absolute inset-0 bg-linear-to-b from-slate-950 to-indigo-950 opacity-[var(--on)] transition-opacity duration-500 motion-reduce:transition-none"
         />
 
         {/* Clouds (day) */}
@@ -179,7 +184,7 @@ export function ThemeSwitch({
         />
         <span
           aria-hidden
-          className="absolute left-5 top-4 size-[3px] rounded-full bg-white opacity-[calc(var(--on)*0.7)] transition-opacity delay-300 duration-500 motion-reduce:transition-none"
+          className="absolute left-5 top-4 size-0.75 rounded-full bg-white opacity-[calc(var(--on)*0.7)] transition-opacity delay-300 duration-500 motion-reduce:transition-none"
         />
         <span
           aria-hidden

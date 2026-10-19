@@ -9,13 +9,10 @@ export function ogImage({
   eyebrow,
   title,
   subtitle,
-  preview,
 }: {
   eyebrow: string;
   title: string;
   subtitle?: string;
-  /** The component itself, drawn on the right of the card. */
-  preview?: ReactElement | null;
 }) {
   return new ImageResponse(
     (
@@ -61,12 +58,11 @@ export function ogImage({
           </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 48 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <div
             style={{
               display: "flex",
-              fontSize: preview ? 88 : title.length > 24 ? 84 : 104,
+              fontSize: title.length > 24 ? 84 : 104,
               fontWeight: 700,
               lineHeight: 1.05,
               letterSpacing: -2,
@@ -81,21 +77,79 @@ export function ogImage({
                 fontSize: 36,
                 color: "#d4d4d8",
                 lineHeight: 1.3,
-                maxWidth: preview ? 560 : 940,
+                maxWidth: 940,
               }}
             >
               {subtitle}
             </div>
           )}
         </div>
-          {preview && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 400 }}>
-              {preview}
-            </div>
-          )}
+        <div style={{ display: "flex", fontSize: 28, color: "#a1a1aa" }}>
+          component.samiransetua.in · Free · MIT · Copy &amp; paste
+        </div>
+      </div>
+    ),
+    OG_SIZE,
+  );
+}
+
+/**
+ * Share card for one component: the same top and bottom lines, with the
+ * component itself on white in between, like a gallery card's preview.
+ */
+export function ogComponentImage({
+  eyebrow,
+  preview,
+}: {
+  eyebrow: string;
+  preview: ReactElement;
+}) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: 72,
+          background: "#ffffff",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <div
+            style={{
+              display: "flex",
+              width: 56,
+              height: 56,
+              borderRadius: 14,
+              background: "#7430dc",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <svg width="34" height="34" viewBox="0 0 100 100">
+              <path
+                d="M26 82 L40 68 H20 L42 46 H21 L66 18"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="11"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div style={{ display: "flex", fontSize: 30, color: "#6d3fd0" }}>
+            {eyebrow}
+          </div>
         </div>
 
-        <div style={{ display: "flex", fontSize: 28, color: "#a1a1aa" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          {preview}
+        </div>
+
+        <div style={{ display: "flex", fontSize: 28, color: "#71717a" }}>
           component.samiransetua.in · Free · MIT · Copy &amp; paste
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { meta as themeSwitch } from "@/experiments/switches/theme-switch/meta";
 import { meta as zigzagTrace } from "@/experiments/loaders/zigzag-trace/meta";
+import { meta as morphWindow } from "@/experiments/feedback/morph-window/meta";
 import { meta as template } from "@/experiments/_template/meta";
 import { CATEGORIES, type Category, type Experiment } from "./types";
 
@@ -16,7 +17,7 @@ export type { Category, Experiment };
  */
 // NOTE: Cache Components needs at least one static route at build time, so
 // keep at least one experiment registered (the template counts).
-const all: Experiment[] = [zigzagTrace, themeSwitch, template];
+const all: Experiment[] = [zigzagTrace, themeSwitch, morphWindow, template];
 
 export const experiments = [...all].sort((a, b) =>
   b.createdAt.localeCompare(a.createdAt),

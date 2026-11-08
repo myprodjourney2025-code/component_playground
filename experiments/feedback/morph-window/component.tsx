@@ -20,19 +20,32 @@ const CSS = `
   --mw-from: #6366f1;
   --mw-to: #3b82f6;
   --mw-ring: #6366f1;
+  /* Mascot size. The resting button is always 3rem round; the mascot is
+     centred in it. */
+  --mw-m: 2.5rem;
 }
 .mw-button-bg {
   background-image: linear-gradient(135deg, var(--mw-from) 0%, var(--mw-to) 100%);
 }
+/* Until the window's real height is measured (after hydration) the closed shape
+   would be calculated from a placeholder, so nothing is shown before that. */
+.mw-root:not([data-ready]) { visibility: hidden; }
 .mw-float { animation: mw-float 6s ease-in-out infinite; }
 @keyframes mw-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
-.mw-ring { animation: mw-ring 2.6s ease-out infinite; }
+/* A soft ring growing out of the button. transform and opacity only, so it runs
+   on the compositor and costs no repainting while the button is idle. It is a
+   filled circle behind the button, so only the part outside it shows. */
+.mw-ring {
+  background: var(--mw-ring);
+  opacity: 0;
+  animation: mw-ring 2.6s ease-out infinite;
+}
 @keyframes mw-ring {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--mw-ring) 65%, transparent); }
-  75%, 100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--mw-ring) 0%, transparent); }
+  0% { transform: scale(1); opacity: 0.65; }
+  75%, 100% { transform: scale(1.58); opacity: 0; }
 }
 
 /*
@@ -45,7 +58,7 @@ const CSS = `
  *   --panel-h   window height, measured in JS (the button is the top 3rem)
  */
 .mw-panel {
-  --w: min(22rem, calc(100vw - 2rem));
+  --w: var(--mw-width, min(22rem, calc(100vw - 2rem)));
   --pill: 3rem;
   --panel-h: 20rem;
   --mw-ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -64,11 +77,6 @@ const CSS = `
     0 0 calc(var(--panel-h) - 3rem) calc(var(--w) - var(--pill)) round 1.5rem
   );
 }
-/* With a visible label, the resting button is a wide pill on desktop. Without
-   one it is just the round mascot everywhere. */
-@media (min-width: 40rem) {
-  .mw-panel[data-labeled="true"] { --pill: 11.5rem; }
-}
 /* The mascot: eyes blink now and then, the antenna glows. */
 .mw-eye {
   transform-box: fill-box;
@@ -85,7 +93,15 @@ const CSS = `
   50% { opacity: 1; }
 }
 /* The button's contents glide from the pill's left edge to the window's. */
-.mw-head { transition: transform var(--mw-time) var(--mw-ease); }
+.mw-head {
+  /* Closed: the mascot is centred in the round button. Open: it sits in the
+     window's heading, with a little more room on the left. */
+  padding-left: calc((var(--pill) - var(--mw-m)) / 2);
+  transition:
+    transform var(--mw-time) var(--mw-ease),
+    padding-left var(--mw-time) var(--mw-ease);
+}
+.mw-panel[data-open="true"] .mw-head { padding-left: 0.875rem; }
 .mw-panel[data-open="false"] .mw-head {
   transform: translate3d(calc(var(--w) - var(--pill)), 0, 0);
 }
@@ -184,6 +200,28 @@ const CSS = `
     inset 0 3px 7px rgb(0 0 0 / 0.35),
     inset 0 0 0 1px rgb(0 0 0 / 0.1);
 }
+/* A slim scrollbar for anything scrolling inside the window. The thumb takes
+   the text colour, so it suits light and dark. Add the class to your own
+   scrolling lists too. */
+.mw-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 28%, transparent) transparent;
+}
+@supports selector(::-webkit-scrollbar) {
+  /* Chrome and Safari: the same look, with a rounded thumb. */
+  .mw-scroll { scrollbar-width: auto; scrollbar-color: auto; }
+  .mw-scroll::-webkit-scrollbar { width: 10px; }
+  .mw-scroll::-webkit-scrollbar-track { background: transparent; }
+  .mw-scroll::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, currentColor 28%, transparent);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+  .mw-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, currentColor 48%, transparent);
+  }
+}
 .mw-body {
   opacity: 1;
   transition: opacity 0.3s ease 0.15s;
@@ -201,26 +239,19 @@ const CSS = `
 }
 `;
 
-// Pinned to the browser window. On a wide screen the page content is a centred
-// column (max-w-6xl = 72rem); pinning the button to the window's corner would
-// leave it far out at the side, so from desktop width its right edge lines up
-// with that column.
+// Pinned to the browser window's bottom-right corner, clear of the notch and
+// the home bar on phones (the safe-area insets need viewport-fit=cover to be
+// non-zero; without it they are 0 and the 1rem margin applies).
 const FIXED_POSITION =
-  "fixed right-4 bottom-36 sm:right-6 sm:bottom-20 lg:right-[max(1.5rem,calc((100vw_-_72rem)_/_2))] lg:bottom-24";
+  "fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] sm:right-[max(1.5rem,env(safe-area-inset-right))] sm:bottom-[max(1.5rem,env(safe-area-inset-bottom))]";
 
 export type MorphWindowProps = {
   /**
-   * Name of the window: its heading when open and the button's accessible
-   * name. Always required, even when no label is shown.
+   * Name of the window: its heading when open and the accessible name of the
+   * round mascot button.
    */
   title: string;
-  /**
-   * Optional text on the resting button, e.g. "Ask AI". Shown on desktop only;
-   * on a phone the button stays the round mascot. Leave it out for a mascot
-   * only button.
-   */
-  label?: string;
-  /** Replaces the built-in mascot. Anything sized about size-8 works. */
+  /** Replaces the built-in mascot. It is fitted into a square of --mw-m (2.5rem). */
   mascot?: ReactNode;
   /**
    * Where it sits, as Tailwind classes. Default: fixed to the browser window's
@@ -228,12 +259,32 @@ export type MorphWindowProps = {
    * and pass e.g. "absolute right-4 bottom-4".
    */
   position?: string;
-  /** Override the colours: --mw-from, --mw-to (button gradient), --mw-ring. */
-  style?: CSSProperties;
+  /** Override --mw-from, --mw-to (button gradient), --mw-ring, --mw-m (mascot size) and --mw-width (open window width, default 22rem). */
+  style?: CSSProperties & Record<`--${string}`, string>;
   /** Classes for the scrolling content area. Default "space-y-4 p-5". */
   bodyClassName?: string;
   /** Pinned under the content, outside the scroll area, e.g. a message input. */
   footer?: ReactNode;
+  /** Start open (and pinned). Default false. */
+  defaultOpen?: boolean;
+  /**
+   * With a mouse, open the window when the pointer enters the button, and close
+   * it when the pointer leaves (unless it was clicked). Default true. Set false
+   * for click, tap or keyboard only. Touch screens never use hover.
+   */
+  openOnHover?: boolean;
+  /**
+   * Called when the window opens or closes. Use it to stop anything that
+   * should not run while the window is hidden, e.g. a microphone.
+   */
+  onOpenChange?: (open: boolean) => void;
+  /**
+   * CSS selector of an element inside the window to focus when it is opened
+   * on purpose (click, tap or keyboard), e.g. "input". Not used when it just
+   * opens on hover, and not on touch screens, where it would raise the
+   * on-screen keyboard over the content.
+   */
+  initialFocus?: string;
   /** What the window shows. */
   children: ReactNode;
 };
@@ -243,21 +294,57 @@ export function Mascot() {
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 64 64"
-      className="size-8 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]"
+      // Cropped to the drawing, so it fills its square and sits centred.
+      viewBox="2 -1 60 60"
+      className="size-full drop-shadow-[0_1px_1px_rgba(0,0,0,0.3)]"
     >
       {/* antenna */}
-      <path d="M32 14V8" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" />
-      <circle cx="32" cy="6" r="4" fill="#fde68a" className="mw-glow" />
+      <path
+        d="M32 14V10"
+        stroke="#ffffff"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <circle cx="32" cy="7.5" r="3.5" fill="#fde68a" className="mw-glow" />
       {/* ears */}
-      <rect x="4" y="29" width="6" height="12" rx="3" fill="#ffffff" fillOpacity="0.85" />
-      <rect x="54" y="29" width="6" height="12" rx="3" fill="#ffffff" fillOpacity="0.85" />
+      <rect
+        x="4"
+        y="29"
+        width="6"
+        height="12"
+        rx="3"
+        fill="#ffffff"
+        fillOpacity="0.85"
+      />
+      <rect
+        x="54"
+        y="29"
+        width="6"
+        height="12"
+        rx="3"
+        fill="#ffffff"
+        fillOpacity="0.85"
+      />
       {/* head and visor */}
       <rect x="9" y="13" width="46" height="40" rx="18" fill="#ffffff" />
       <rect x="15" y="20" width="34" height="26" rx="12" fill="#1e1b4b" />
       {/* eyes, cheeks, smile */}
-      <ellipse cx="25.5" cy="30" rx="3.4" ry="4.4" fill="#67e8f9" className="mw-eye" />
-      <ellipse cx="38.5" cy="30" rx="3.4" ry="4.4" fill="#67e8f9" className="mw-eye" />
+      <ellipse
+        cx="25.5"
+        cy="30"
+        rx="3.4"
+        ry="4.4"
+        fill="#67e8f9"
+        className="mw-eye"
+      />
+      <ellipse
+        cx="38.5"
+        cy="30"
+        rx="3.4"
+        ry="4.4"
+        fill="#67e8f9"
+        className="mw-eye"
+      />
       <circle cx="20.5" cy="38" r="2.6" fill="#f9a8d4" fillOpacity="0.85" />
       <circle cx="43.5" cy="38" r="2.6" fill="#f9a8d4" fillOpacity="0.85" />
       <path
@@ -280,18 +367,21 @@ export function Mascot() {
  */
 export function MorphWindow({
   title,
-  label,
   mascot,
   position = FIXED_POSITION,
+  defaultOpen = false,
+  openOnHover = true,
   style,
   bodyClassName = "space-y-4 p-5",
   footer,
+  onOpenChange,
+  initialFocus,
   children,
 }: MorphWindowProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   // Opened by a click/tap/key rather than a hover: stays open when the
   // pointer leaves.
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinned] = useState(defaultOpen);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -326,6 +416,7 @@ export function MorphWindow({
       }
     };
     measure();
+    rootRef.current?.setAttribute("data-ready", "");
     const observer = new ResizeObserver(measure);
     observer.observe(panel);
     return () => observer.disconnect();
@@ -333,9 +424,10 @@ export function MorphWindow({
 
   useEffect(() => () => clearTimeout(leaveTimer.current), []);
 
-  // A pinned window closes on a click/tap outside it.
+  // One click or tap outside closes the window, however it was opened
+  // (hover, click or keyboard) and wherever focus is inside it.
   useEffect(() => {
-    if (!pinned) return;
+    if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false);
@@ -344,7 +436,35 @@ export function MorphWindow({
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [pinned]);
+  }, [open]);
+
+  // Move focus into the window once it is opened on purpose. `pinned` is only
+  // set by a click, tap or key, never by hover. The content is `inert` while
+  // closed, so this runs after the open has been committed.
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!open) {
+      focused.current = false;
+      return;
+    }
+    if (!pinned || focused.current || !initialFocus) return;
+    focused.current = true;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    rootRef.current
+      ?.querySelector<HTMLElement>(`.mw-body ${initialFocus}`)
+      ?.focus({ preventScroll: true });
+  }, [open, pinned, initialFocus]);
+
+  // Tell the parent when the window opens or closes (not on first render).
+  const onOpenChangeRef = useRef(onOpenChange);
+  useEffect(() => {
+    onOpenChangeRef.current = onOpenChange;
+  });
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (open !== wasOpen.current) onOpenChangeRef.current?.(open);
+    wasOpen.current = open;
+  }, [open]);
 
   return (
     <div
@@ -366,14 +486,17 @@ export function MorphWindow({
         }
       }}
     >
-      <style>{CSS}</style>
+      {/* React 19 hoists this into <head> and keeps one copy however many
+          instances are on the page. */}
+      <style href="morph-window" precedence="default">
+        {CSS}
+      </style>
 
       {/* A soft ring that draws the eye while the button is at rest. */}
       <span
         aria-hidden="true"
         className={[
           "mw-ring pointer-events-none absolute right-0 bottom-0 h-12 w-12 rounded-full",
-          label && "sm:w-[11.5rem]",
           open && "hidden",
         ]
           .filter(Boolean)
@@ -384,13 +507,20 @@ export function MorphWindow({
         <div
           ref={panelRef}
           data-open={open}
-          data-labeled={Boolean(label)}
           className="mw-panel pointer-events-auto relative bg-white text-neutral-950 dark:bg-neutral-900 dark:text-neutral-50"
           // Only a real mouse hovers; touch and pen taps arrive as clicks.
           // A short grace period on leaving stops a pointer grazing the
           // edge from making the window flicker.
           onPointerEnter={(e) => {
-            if (e.pointerType === "mouse") openWindow(true);
+            if (openOnHover && e.pointerType === "mouse") openWindow(true);
+          }}
+          // A press anywhere in a window that only hover opened means "I am
+          // using this": pin it, so it stays when the pointer leaves. The
+          // header button does its own pinning on click.
+          onPointerDown={(e) => {
+            if (open && !pinned && !(e.target as Element).closest(".mw-btn")) {
+              setPinned(true);
+            }
           }}
           onPointerLeave={(e) => {
             if (e.pointerType !== "mouse" || pinned) return;
@@ -406,33 +536,29 @@ export function MorphWindow({
             type="button"
             aria-expanded={open}
             aria-controls={panelId}
-            aria-label={label ? undefined : title}
+            aria-label={title}
             onClick={() => (pinned ? closeWindow() : openWindow(false))}
-            className="mw-btn mw-button-bg peer relative block h-12 w-full cursor-pointer text-left text-sm font-medium whitespace-nowrap text-neutral-50 outline-none"
+            className="mw-btn mw-button-bg peer relative block h-12 w-full cursor-default text-left text-sm font-medium whitespace-nowrap text-neutral-50 outline-none"
           >
             {/* Under the text, so the shine never dims the label. */}
             <span
               aria-hidden="true"
               className="mw-bevel pointer-events-none absolute top-0 right-0 h-12"
             />
-            {/* The text is always in the DOM (the pill clips it on a phone),
-                so the button keeps its accessible name. */}
-            <span className="mw-head relative z-10 flex h-full w-full items-center gap-2 px-3.5">
-              {mascot ?? <Mascot />}
-              {/* On a phone the resting button is the icon only: the label is
-                  clipped by the 3rem pill but its first letter still peeked
-                  out, so it is invisible until the window opens. */}
+            <span className="mw-head relative z-10 flex h-full w-full items-center gap-2 pr-3.5">
+              <span className="grid size-[var(--mw-m)] shrink-0 place-items-center">
+                {mascot ?? <Mascot />}
+              </span>
+              {/* The window's heading. Hidden while the button is just the
+                  mascot (the pill clips it, but its first letter would still
+                  peek out). */}
               <span
                 className={[
                   "flex-1 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)] transition-opacity duration-300",
-                  open
-                    ? "opacity-100 delay-150"
-                    : label
-                      ? "opacity-0 sm:opacity-100"
-                      : "opacity-0",
+                  open ? "opacity-100 delay-150" : "opacity-0",
                 ].join(" ")}
               >
-                {label ?? title}
+                {title}
               </span>
               {pinned && (
                 <svg
@@ -467,7 +593,7 @@ export function MorphWindow({
             className="mw-body"
           >
             <div
-              className={`max-h-[60vh] min-h-32 overflow-y-auto text-sm leading-relaxed ${bodyClassName}`}
+              className={`mw-scroll max-h-[min(60dvh,calc(100dvh_-_10rem))] min-h-32 overflow-y-auto text-sm leading-relaxed ${bodyClassName}`}
             >
               {children}
             </div>

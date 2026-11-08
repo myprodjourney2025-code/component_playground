@@ -1,8 +1,27 @@
 # Morph Window
 
-- **Inspiration:** Today's forecast window in the Bhagyam dashboard (a pill that grows into a window).
-- **Goal:**
-- **Notes:**
+- **Inspiration:** a floating help window from one of my own projects: a small pill that grows into a window.
+- **Goal:** turn that one-off window into a component anyone can drop in. A mascot button
+  that grows into a chat, assistant or help window; the content is whatever you pass in
+  (`children` and `footer`); any colours; works on a phone and with a keyboard; respects
+  reduced motion. I wanted to learn how to reveal a window with `clip-path` instead of
+  resizing it, so the text never re-wraps while it animates.
+- **Notes:** (written at launch; edit freely)
+  - The closed shape is worked out from the window's real height, which is only known after
+    the page loads. Until then the component is hidden, otherwise the first frame is wrong.
+  - Pointer hits are clipped by `clip-path`, so the invisible part of the window never
+    reacts to the mouse. Handy, but it also means a test must click the visible circle.
+  - `scrollIntoView` scrolls every ancestor, even ones with `overflow-hidden`. The chat list
+    scrolls itself with `scrollTop` instead.
+  - Voice: `stop()` still delivers the last words afterwards, so sending uses `abort()`.
+    The mic must stop when the window closes (`onOpenChange`). A plain letter cannot be a
+    shortcut while typing, hence Alt+M, matched by `event.code` because Option+M types "µ".
+  - Phones: inputs are 16px so iOS does not zoom, taps never use hover, and focus is not
+    moved into the input on touch (it would raise the keyboard).
+  - Hover opens it with a mouse, a press anywhere inside pins it, one press outside closes it
+    and the typed text is kept.
+  - The mascot is a temporary drawn robot. Next: a custom mascot, a controlled `open` prop,
+    and a decision on the product's brand name.
 
 ## Motion notes (technical, added during the launch audit)
 

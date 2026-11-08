@@ -4,7 +4,7 @@ import { SITE } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "This site has no accounts, no ads and no analytics. The only thing it stores is your theme choice, in your own browser.",
+    "This site has no accounts, no ads and no analytics. It stores only your own preferences, in your own browser. The voice demo uses your browser's speech recognition, and only if you press the microphone.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -26,10 +26,29 @@ export default function PrivacyPage() {
           device. Clear your site data to remove it.
         </li>
         <li>
+          If you change the keyboard shortcut for voice input in the Morph
+          Window demo, that key is saved the same way, under{" "}
+          <code className="font-mono">morph-window:voice-shortcut</code>. It
+          never leaves your device either.
+        </li>
+        <li>
           No cookies, no accounts, no forms, no advertising and no analytics
           are used.
         </li>
       </ul>
+
+      <h2 className="text-xl font-semibold tracking-tight">
+        Voice input demo
+      </h2>
+      <p className="text-muted">
+        The &ldquo;Chat with voice&rdquo; example has a microphone button. It
+        does nothing until you press it, and your browser then asks for
+        permission. It uses your browser&apos;s built-in speech recognition.
+        Depending on the browser (Chrome and Edge, for example), your audio is
+        sent to the browser maker&apos;s speech service to be turned into text.
+        This site never receives, records or stores your audio or the text.
+        Close the window or press the button again to stop listening.
+      </p>
 
       <h2 className="text-xl font-semibold tracking-tight">
         Hosting and logs

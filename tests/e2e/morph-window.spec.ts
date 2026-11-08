@@ -32,6 +32,13 @@ async function openByClick(page: Page, name = NAME) {
   const { x, y } = await mascotPoint(page, name);
   await page.mouse.click(x, y);
   await expect.poll(() => expanded(page, name)).toBe("true");
+  // The content fades in after the window starts opening. Wait until it is fully
+  // opaque: scanning earlier sees semi-transparent text and reports false
+  // colour-contrast failures.
+  await expect(page.locator('.mw-panel[data-open="true"] .mw-body')).toHaveCSS(
+    "opacity",
+    "1",
+  );
 }
 
 test.describe("Morph Window (desktop)", () => {
